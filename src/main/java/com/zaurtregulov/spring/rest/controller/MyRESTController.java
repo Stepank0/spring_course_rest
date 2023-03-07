@@ -29,27 +29,41 @@ public class MyRESTController {
         // @PathVariable int id - используется для  получения значения переменной из адреса запроса
         Employee employee = employeeService.getEmployee(id);
 
-        if(employee == null){
+        if (employee == null) {
             throw new NoSuchEmployeeException("There is no employee with ID = " +
                     id + " int Database");
         }
 
         return employee;
     }
-    @ExceptionHandler   // отмечается метод , ответственный за обработку исключений
-    public ResponseEntity<EmployeeIncorrectData> handleException(NoSuchEmployeeException exception){
-        EmployeeIncorrectData data = new EmployeeIncorrectData();
-        data.setInfo(exception.getMessage());
 
-        return new ResponseEntity<>(data, HttpStatus.NOT_FOUND);
+    // @PostMapping связывает HTTP запрос , использующий HTTP метод POST с методом контролера
+    @PostMapping("/employees")
+    public Employee addNewEmployee(@RequestBody Employee employee) {
+        //@RequestBody используется для добавления информации в теле POST request которое получаем с Клиента
+        employeeService.saveEmployee(employee);
+        return employee;
+
     }
 
-    @ExceptionHandler   // отмечается метод , ответственный за обработку исключений
-    public ResponseEntity<EmployeeIncorrectData> handleException(Exception exception){
-        EmployeeIncorrectData data = new EmployeeIncorrectData();
-        data.setInfo(exception.getMessage());
+    @PutMapping("/employees")
+    public Employee updateEmployee(@RequestBody Employee employee) {
+        employeeService.saveEmployee(employee);
 
-        return new ResponseEntity<>(data, HttpStatus.BAD_REQUEST);
+        return employee;
     }
+
+    @DeleteMapping("/employees/{id}")
+    public String deleteEmployee(@PathVariable int id) {
+        Employee employee = employeeService.getEmployee(id);
+        if (employee == null) {
+            throw new NoSuchEmployeeException("There is no employee with ID = " + id +
+                    " in Database");
+        }
+        employeeService.deleteEmployee(id);
+        return "Employee with ID = " + id + " was deleted";
+
+    }
+
 
 }
